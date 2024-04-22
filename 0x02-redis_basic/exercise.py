@@ -21,8 +21,7 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> Union[
-            str, bytes, int, float, None]:
+    def get(self, key: str, fn: Callable = None) -> Union[str, bytes, int, float, None]:
         """
         Retrieve data from Redis.
 
@@ -32,14 +31,17 @@ class Cache:
             the retrieved data.
 
         Returns:
-            Union[str, bytes, int, float, None]:The retrieved data,
+            Union[str, bytes, int, float, None]: The retrieved data,
             possibly transformed by the conversion function.
         """
         data = self._redis.get(key)
         if data is None:
             return None
         if fn is not None:
-            return fn(data)
+            try:
+                return fn(data)
+            except ValueError:
+                raise ValueError("Failed to convert data to the desired format")
         return data
 
     def get_str(self, key: str) -> Union[str, bytes, None]:
